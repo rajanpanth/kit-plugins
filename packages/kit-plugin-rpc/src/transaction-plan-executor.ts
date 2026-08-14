@@ -9,6 +9,7 @@ import {
     GetEpochInfoApi,
     GetLatestBlockhashApi,
     GetSignatureStatusesApi,
+    getSignatureFromTransaction,
     isSolanaError,
     pipe,
     ResourceLimitsEstimate,
@@ -247,12 +248,13 @@ function createExecutor(
                 async tx => (context.transaction = await tx),
             );
             assertIsTransactionWithBlockhashLifetime(signedTransaction);
+            const signature = getSignatureFromTransaction(signedTransaction);
             await sendAndConfirmTransaction(signedTransaction, {
                 commitment: 'confirmed',
                 skipPreflight: skipPreflight || didSimulateToEstimate,
                 ...executorConfig,
             });
-            return signedTransaction;
+            return { signature, transaction: signedTransaction };
         }, config.maxConcurrency ?? 10),
     } satisfies TransactionPlanExecutorConfig);
 }

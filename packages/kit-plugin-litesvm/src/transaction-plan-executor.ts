@@ -1,6 +1,7 @@
 import {
     ClientWithTransactionPlanning,
     createTransactionPlanExecutor,
+    getSignatureFromTransaction,
     pipe,
     signTransactionMessageWithSigners,
     TransactionPlanExecutor,
@@ -121,7 +122,11 @@ function createExecutor(client: {
             if (isFailedTransaction(result)) {
                 throw getSolanaErrorFromLiteSvmFailure(result);
             }
-            return signedTransaction;
+            return {
+                signature: getSignatureFromTransaction(signedTransaction),
+                transaction: signedTransaction,
+                transactionMetadata: result,
+            };
         },
     });
 }
